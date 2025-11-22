@@ -7608,11 +7608,10 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
         <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"first param"</span><span class="p">},</span>
         <span class="s2">"b"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"second param"</span><span class="p">},</span>
     <span class="p">}</span>
-    <span class="n">output_type</span> <span class="o">=</span> <span class="s2">"string"</span>
+    <span class="n">output_type</span> <span class="o">=</span> <span class="s2">"number"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">InferenceClientModel</span><span class="p">(</span>
     <span class="n">model_id</span><span class="o">=</span><span class="s2">"meta-llama/Llama-3.3-70B-Instruct"</span><span class="p">,</span>
