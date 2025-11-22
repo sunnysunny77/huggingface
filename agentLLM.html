@@ -7569,64 +7569,75 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gradio</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">smolagents</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Tool</span><span class="p">,</span>
-    <span class="n">ToolCallingAgent</span><span class="p">,</span>
+    <span class="n">tool</span><span class="p">,</span>
+    <span class="n">CodeAgent</span><span class="p">,</span>
     <span class="n">DuckDuckGoSearchTool</span><span class="p">,</span>
-    <span class="n">InferenceClientModel</span>
+    <span class="n">InferenceClientModel</span><span class="p">,</span>
+    <span class="n">FinalAnswerTool</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"HF_TOKEN"</span><span class="p">)</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">SearchTool</span><span class="p">(</span><span class="n">Tool</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">"search_tool"</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="s2">"Search the web and return the most relevant info."</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"query"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"search query"</span><span class="p">}}</span>
-    <span class="n">output_type</span> <span class="o">=</span> <span class="s2">"string"</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search_tool</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Search the web and return the most relevant results.</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ddg</span> <span class="o">=</span> <span class="n">DuckDuckGoSearchTool</span><span class="p">()</span>  
+<span class="sd">    Args:</span>
+<span class="sd">        query (str): The search query.</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddg</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> 
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The search results.</span>
+<span class="sd">    """</span>
+    <span class="n">web_search_tool</span> <span class="o">=</span> <span class="n">DuckDuckGoSearchTool</span><span class="p">(</span><span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">rate_limit</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">web_search_tool</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">FinalAnswerTool</span><span class="p">(</span><span class="n">Tool</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">"final_answer"</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="s2">"Provides answers items to users."</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"answers"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"answer items seperated by </span><span class="se">\n\n</span><span class="s2">"</span><span class="p">}}</span>
-    <span class="n">output_type</span> <span class="o">=</span> <span class="s2">"string"</span>
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_numbers_tool</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Adds two numbers and returns the result.</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">answers</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">greeting</span> <span class="o">=</span> <span class="s2">"Hello! I am your SmolAgent AI Jerry</span><span class="se">\n\n</span><span class="s2">"</span>
-        <span class="n">follow_up</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Can I assist you further?"</span>
-        <span class="k">return</span> <span class="n">greeting</span> <span class="o">+</span> <span class="n">answers</span> <span class="o">+</span> <span class="n">follow_up</span>
+<span class="sd">    Args:</span>
+<span class="sd">        a (float): First number.</span>
+<span class="sd">        b (float): Second number.</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">AddNumbersTool</span><span class="p">(</span><span class="n">Tool</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">"add_numbers"</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="s2">"Adds two numbers."</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"first param"</span><span class="p">},</span>
-        <span class="s2">"b"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"second param"</span><span class="p">},</span>
-    <span class="p">}</span>
-    <span class="n">output_type</span> <span class="o">=</span> <span class="s2">"number"</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Sum of a and b.</span>
+<span class="sd">    """</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">final_answer</span> <span class="o">=</span> <span class="n">FinalAnswerTool</span><span class="p">()</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">InferenceClientModel</span><span class="p">(</span>
     <span class="n">model_id</span><span class="o">=</span><span class="s2">"meta-llama/Llama-3.3-70B-Instruct"</span><span class="p">,</span>
     <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
+    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2096</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">agent</span> <span class="o">=</span> <span class="n">ToolCallingAgent</span><span class="p">(</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">CodeAgent</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
     <span class="n">tools</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">AddNumbersTool</span><span class="p">(),</span>
-        <span class="n">SearchTool</span><span class="p">(),</span>
-        <span class="n">FinalAnswerTool</span><span class="p">(),</span>
+        <span class="n">add_numbers_tool</span><span class="p">,</span>
+        <span class="n">search_tool</span><span class="p">,</span>
+        <span class="n">final_answer</span><span class="p">,</span>
     <span class="p">],</span>
-    <span class="n">max_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">"Talk like a robot"</span><span class="p">,</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">planning_interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="n">agent</span><span class="o">.</span><span class="n">prompt_templates</span><span class="p">[</span><span class="s2">"system_prompt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">prompt_templates</span><span class="p">[</span><span class="s2">"system_prompt"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">""""</span>
+<span class="s2">    You are a tool calling agent.</span>
+<span class="s2">    You have access to these tools: </span>
+<span class="s2">    - add_numbers_tool(a: float, b: float) -&gt; float </span>
+<span class="s2">    - search_tool(query: str) -&gt; str </span>
+<span class="s2">    - You must try construct a well-formatted human-readable answer</span>
+<span class="s2">    - You must try include newlines, bullets, numbering, and proper punctuation</span>
+<span class="s2">    - You must introduce yourself as Jerry and greet the user in the answer</span>
+<span class="s2">    - You must use this answer in final_answer</span>
+<span class="s2">"""</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run_agent</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
@@ -7640,9 +7651,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
     <span class="n">inputs</span><span class="o">=</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">"Ask me anything..."</span><span class="p">),</span>
     <span class="n">outputs</span><span class="o">=</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">"SmolAgent"</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">"This agent uses DuckDuckGo search, adds numbers, and returns final answers"</span>
-    <span class="p">)</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"This agent uses DuckDuckGo search, adds numbers, and returns final answers."</span>
 <span class="p">)</span>
 
 <span class="n">iface</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">server_name</span><span class="o">=</span><span class="s2">"0.0.0.0"</span><span class="p">,</span> <span class="n">server_port</span><span class="o">=</span><span class="mi">7860</span><span class="p">)</span>
@@ -7685,7 +7694,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span> 
+<div class="highlight hl-ipython3"><pre><span></span>
 </pre></div>
 </div>
 </div>
