@@ -7614,6 +7614,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
     <span class="n">model_id</span><span class="o">=</span><span class="s2">"meta-llama/Llama-3.3-70B-Instruct"</span><span class="p">,</span>
     <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
     <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2096</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">CodeAgent</span><span class="p">(</span>
@@ -7623,7 +7624,6 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
         <span class="n">search_tool</span><span class="p">,</span>
         <span class="n">final_answer</span><span class="p">,</span>
     <span class="p">],</span>
-    <span class="n">instructions</span><span class="o">=</span><span class="s2">"Talk like a robot"</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="n">planning_interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span>
@@ -7633,9 +7633,9 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
 <span class="s2">    You have access to these tools: </span>
 <span class="s2">    - add_numbers_tool(a: float, b: float) -&gt; float </span>
 <span class="s2">    - search_tool(query: str) -&gt; str </span>
-<span class="s2">    - You must try construct a well-formatted human-readable answer</span>
-<span class="s2">    - You must try include newlines, bullets, numbering, and proper punctuation</span>
+<span class="s2">    - You must construct a well-formatted human-readable answer</span>
 <span class="s2">    - You must introduce yourself as Jerry and greet the user in the answer</span>
+<span class="s2">    - You must try include newlines, bullets, numbering, and proper punctuation</span>
 <span class="s2">    - You must use this answer in final_answer</span>
 <span class="s2">"""</span>
 
