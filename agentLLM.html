@@ -7594,19 +7594,26 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
     <span class="k">return</span> <span class="n">results</span>
 
 <span class="nd">@tool</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">add_numbers_tool</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sentiment_tool</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Adds two numbers and returns the result.</span>
+<span class="sd">    Analyze sentiment of given text.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        a (float): First number.</span>
-<span class="sd">        b (float): Second number.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        float: Sum of a and b.</span>
+<span class="sd">        text (str): The sentiment query.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns: str: sentiment</span>
 <span class="sd">    """</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        Analyze the sentiment of the following text:</span>
+<span class="s2">        </span>
+<span class="s2">        Text: "</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span>
+<span class="s2">        """</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Sentiment: </span><span class="si">{</span><span class="n">cleaned</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="n">final_answer</span> <span class="o">=</span> <span class="n">FinalAnswerTool</span><span class="p">()</span>
 
@@ -7620,7 +7627,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
 <span class="n">agent</span> <span class="o">=</span> <span class="n">CodeAgent</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
     <span class="n">tools</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">add_numbers_tool</span><span class="p">,</span>
+        <span class="n">sentiment_tool</span><span class="p">,</span>
         <span class="n">search_tool</span><span class="p">,</span>
         <span class="n">final_answer</span><span class="p">,</span>
     <span class="p">],</span>
@@ -7631,7 +7638,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
 <span class="n">agent</span><span class="o">.</span><span class="n">prompt_templates</span><span class="p">[</span><span class="s2">"system_prompt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">prompt_templates</span><span class="p">[</span><span class="s2">"system_prompt"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">""""</span>
 <span class="s2">    You are a tool calling agent.</span>
 <span class="s2">    You have access to these tools: </span>
-<span class="s2">    - add_numbers_tool(a: float, b: float) -&gt; float </span>
+<span class="s2">    - sentiment_tool(text: str) -&gt; str </span>
 <span class="s2">    - search_tool(query: str) -&gt; str </span>
 <span class="s2">    - You must construct a well-formatted human-readable answer</span>
 <span class="s2">    - You must introduce yourself as Jerry and greet the user in the answer</span>
@@ -7651,7 +7658,7 @@ Requirement already satisfied: mdurl~=0.1 in ./agent-env/lib/python3.11/site-pac
     <span class="n">inputs</span><span class="o">=</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">placeholder</span><span class="o">=</span><span class="s2">"Ask me anything..."</span><span class="p">),</span>
     <span class="n">outputs</span><span class="o">=</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">"SmolAgent"</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">"This agent uses DuckDuckGo search, adds numbers, and returns final answers."</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"This agent uses DuckDuckGo search, Sentiment Analysis, and returns final answers."</span>
 <span class="p">)</span>
 
 <span class="n">iface</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">server_name</span><span class="o">=</span><span class="s2">"0.0.0.0"</span><span class="p">,</span> <span class="n">server_port</span><span class="o">=</span><span class="mi">7860</span><span class="p">)</span>
